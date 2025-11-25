@@ -26,19 +26,19 @@ export function CourseCard({ course }: CourseCardProps) {
           className="w-full h-full object-cover"
         />
         {course.favorite && (
-          <button className="absolute top-3 right-3 w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-md">
+          <button className="absolute top-3 right-3 w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-md hover:shadow-lg transition-shadow" title="Ajouter aux favoris">
             <Heart className="w-4 h-4 text-[#F58220] fill-[#F58220]" />
           </button>
         )}
       </div>
 
-      <div className="p-5">
-        <div className="flex items-center gap-2 mb-3 text-xs">
-          <span className="text-[#F58220]">{course.provider}</span>
+      <div className="p-4">
+        <div className="flex items-center gap-2 mb-2">
+          <span className="text-[#F58220] text-xs font-medium">{course.provider}</span>
         </div>
 
-        <div className="flex items-center gap-2 mb-3">
-          <span className="inline-flex items-center gap-1 px-2 py-1 bg-[#0ea5e9] text-white text-xs font-medium rounded">
+        <div className="flex items-center gap-2 mb-3 flex-wrap">
+          <span className="inline-flex items-center gap-1 px-2 py-1 bg-[#0055A4] text-white text-xs font-medium rounded">
             {course.level}
           </span>
           <span className="inline-flex items-center gap-1 px-2 py-1 bg-[#0ea5e9] text-white text-xs font-medium rounded">
@@ -50,27 +50,31 @@ export function CourseCard({ course }: CourseCardProps) {
           </span>
         </div>
 
-        <div className="flex items-start gap-2 mb-4">
-          <div className="w-8 h-8 bg-[#0055A4] rounded flex items-center justify-center flex-shrink-0 mt-1">
+        <div className="flex items-start gap-2 mb-3">
+          <div className="w-7 h-7 bg-[#0055A4] rounded flex items-center justify-center flex-shrink-0 mt-0.5">
             <span className="text-white text-xs font-bold">IT</span>
           </div>
-          <h3 className="font-bold text-[#101722] text-lg leading-tight">
+          <h3 className="font-bold text-[#101722] text-sm leading-tight">
             {course.title}
           </h3>
         </div>
 
-        <div className="flex items-center gap-2 mb-4 text-sm text-slate-600">
-          <MapPin className="w-4 h-4" />
+        <div className="flex items-center gap-2 mb-3 text-xs text-slate-600">
+          <MapPin className="w-3 h-3" />
           <span>{course.location}</span>
         </div>
 
-        <div className="flex items-center gap-2 mb-4 text-sm text-slate-600">
-          <Award className="w-4 h-4" />
+        <div className="flex items-center gap-2 mb-4 text-xs text-slate-600">
+          <Award className="w-3 h-3" />
           <span>Certificat</span>
         </div>
 
-        <button className="w-full bg-[#0ea5e9] hover:bg-[#0284c7] text-white py-2.5 rounded-lg font-medium transition-colors">
-          En savoir plus
+        <button className={`w-full text-white py-2 rounded-lg font-medium text-sm transition-colors ${
+          course.favorite
+            ? 'bg-[#FFC107] hover:bg-[#FFB300]'
+            : 'bg-[#0ea5e9] hover:bg-[#0284c7]'
+        }`}>
+          {course.favorite ? 'Favoris' : 'En savoir plus'}
         </button>
       </div>
     </div>
