@@ -1,26 +1,15 @@
-import { Header } from './components/Header';
-import { SearchSection } from './components/SearchSection';
-import { CategoryNav } from './components/CategoryNav';
-import { Filters } from './components/Filters';
-import { Catalog } from './components/Catalog';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { HomePage } from './pages/HomePage';
+import Catalogue from './pages/catalogues';
 
 function App() {
   return (
-    <div className="min-h-screen bg-[#f6f7f8]">
-      <Header />
-      <SearchSection />
-      <CategoryNav />
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        <div className="flex gap-6">
-          <aside className="w-64 flex-shrink-0">
-            <Filters />
-          </aside>
-          <main className="flex-1">
-            <Catalog />
-          </main>
-        </div>
-      </div>
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/catalogue" element={<Catalogue />} />
+      </Routes>
+    </Router>
   );
 }
 
