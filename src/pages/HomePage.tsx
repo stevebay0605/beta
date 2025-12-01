@@ -4,7 +4,7 @@ import { FeaturesSection } from '../components/FeaturesSection';
 import { CTASection } from '../components/CTASection';
 import { Footer } from '../components/Footer';
 
-export function HomePage() {
+function HomePage() {
   return (
     <div className="relative flex min-h-screen w-full flex-col">
       <Header />
@@ -15,3 +15,5 @@ export function HomePage() {
     </div>
   );
 }
+
+export default HomePage;
