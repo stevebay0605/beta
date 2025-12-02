@@ -4,15 +4,21 @@ import { Sidebar } from '../../components/Sidebar';
 import { Header } from '../../components/Header';
 import { Footer } from '../../components/Footer';
 import axiosInstance from '../../api/axios';
-import { Edit, Trash2, Eye, BookOpen, Plus } from 'lucide-react';
+import { 
+  Edit, Trash2, Eye, Plus, Calendar, Users, 
+  Image as ImageIcon, Search, BookOpen // <--- Ajouté ici
+} from 'lucide-react';
 
+// --- INTERFACE SÉCURISÉE ---
 interface Formation {
   id: number;
   name: string;
+  description?: string;
+  image_url?: string;
   navda?: string;
-  category: string;
-  start_date: string;
-  status: string;
+  category?: string;
+  start_date?: string;
+  status?: string; 
   learners_count?: number;
 }
 
@@ -24,29 +30,43 @@ interface Stats {
 
 export default function EnterpriseFormationsPage() {
   const navigate = useNavigate();
+  
+  // --- ÉTATS ---
   const [formations, setFormations] = useState<Formation[]>([]);
-  const [stats, setStats] = useState<Stats>({
-    active_formations: 0,
-    total_formations: 0,
-    total_demands: 0,
-  });
+  const [stats, setStats] = useState<Stats>({ active_formations: 0, total_formations: 0, total_demands: 0 });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [filterStatus, setFilterStatus] = useState<string>('all');
+  const [searchTerm, setSearchTerm] = useState('');
 
+  // --- CHARGEMENT DES DONNÉES ---
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        // Récupérer les formations
-        const formationsResponse = await axiosInstance.get('/formations');
-        setFormations(formationsResponse.data);
+        setError(null);
 
-        // Récupérer les statistiques
-        const statsResponse = await axiosInstance.get('/formations/stats');
-        setStats(statsResponse.data);
-      } catch (err: any) {
-        console.error('Erreur lors du chargement des données:', err);
-        setError(err.response?.data?.message || 'Erreur lors du chargement');
+        const [formationsRes, statsRes] = await Promise.allSettled([
+            axiosInstance.get('/formations'),
+            axiosInstance.get('/formations/stats')
+        ]);
+
+        // Gestion Formations
+        if (formationsRes.status === 'fulfilled') {
+            const data = Array.isArray(formationsRes.value.data) ? formationsRes.value.data : [];
+            setFormations(data);
+        } else {
+            console.error("Erreur API Formations:", formationsRes.reason);
+        }
+
+        // Gestion Stats
+        if (statsRes.status === 'fulfilled') {
+            setStats(statsRes.value.data);
+        }
+
+      } catch (err) {
+        console.error('Erreur globale:', err);
+        setError('Une erreur est survenue lors du chargement des données.');
       } finally {
         setLoading(false);
       }
@@ -55,209 +75,235 @@ export default function EnterpriseFormationsPage() {
     fetchData();
   }, []);
 
-  const getStatusColor = (status: string) => {
-    switch (status.toLowerCase()) {
-      case 'publié':
-      case 'published':
-        return 'bg-green-100 text-green-800';
-      case 'brouillon':
-      case 'draft':
-        return 'bg-yellow-100 text-yellow-800';
-      case 'archivé':
-      case 'archived':
-        return 'bg-gray-100 text-gray-800';
-      default:
-        return 'bg-blue-100 text-blue-800';
+  // --- ACTIONS ---
+  const handleDelete = async (id: number) => {
+    if (!window.confirm('Voulez-vous vraiment supprimer cette formation ?')) return;
+    try {
+      await axiosInstance.delete(`/formations/${id}`);
+      setFormations(prev => prev.filter(f => f.id !== id));
+    } catch (err) {
+      alert("Erreur lors de la suppression");
     }
   };
 
-  const handleDelete = async (formationId: number) => {
-    if (!window.confirm('Êtes-vous sûr de vouloir supprimer cette formation?')) {
-      return;
-    }
+  // --- FILTRES ---
+  const filteredFormations = formations.filter(f => {
+      const nameMatch = (f.name || '').toLowerCase().includes(searchTerm.toLowerCase());
+      const catMatch = (f.category || '').toLowerCase().includes(searchTerm.toLowerCase());
+      
+      const currentStatus = (f.status || 'draft').toLowerCase();
+      const statusMatch = filterStatus === 'all' || 
+                          (filterStatus === 'published' && (currentStatus === 'published' || currentStatus === 'publié')) ||
+                          (filterStatus === 'draft' && (currentStatus === 'draft' || currentStatus === 'brouillon'));
+                          
+      return (nameMatch || catMatch) && statusMatch;
+  });
 
-    try {
-      await axiosInstance.delete(`/formations/${formationId}`);
-      setFormations(formations.filter((f) => f.id !== formationId));
-      alert('Formation supprimée avec succès');
-    } catch (err: any) {
-      console.error('Erreur:', err);
-      alert(err.response?.data?.message || 'Erreur lors de la suppression');
+  // --- HELPER AFFICHAGE STATUT ---
+  const getStatusBadge = (status?: string) => {
+    const safeStatus = (status || 'draft').toLowerCase();
+
+    if (safeStatus === 'published' || safeStatus === 'publié') {
+        return <span className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700">Publié</span>;
     }
+    if (safeStatus === 'archived' || safeStatus === 'archivé') {
+        return <span className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-700">Archivé</span>;
+    }
+    return <span className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-700">Brouillon</span>;
   };
 
   return (
-    <div className="flex min-h-screen bg-slate-50">
+    <div className="flex min-h-screen bg-slate-50 font-sans">
       <Sidebar />
 
       <div className="flex-1 ml-64 flex flex-col">
         <Header />
 
-        <main className="flex-grow p-8">
-          <div className="max-w-7xl mx-auto">
-            {/* Header */}
-            <div className="mb-8">
-              <h1 className="text-4xl font-bold text-slate-900 mb-2">
-                Gestion de Mes formations
-              </h1>
-              <p className="text-slate-600">
-                Gérez et suivez vos formations
-              </p>
+        <main className="flex-grow p-6 lg:p-10">
+          <div className="max-w-7xl mx-auto space-y-8">
+            
+            {/* EN-TÊTE */}
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div>
+                <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Mes Formations</h1>
+                <p className="text-slate-500 mt-1">Pilotez votre catalogue et suivez vos inscriptions.</p>
+              </div>
+              <button 
+                onClick={() => navigate('/enterprise/formations/create')}
+                className="flex items-center gap-2 bg-[#0055A4] hover:bg-[#004484] text-white px-5 py-2.5 rounded-lg shadow-lg shadow-blue-900/20 transition-all font-medium"
+              >
+                <Plus size={20} />
+                Nouvelle Formation
+              </button>
             </div>
 
+            {/* STATISTIQUES */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+               <StatCard 
+                 title="Formations Actives" 
+                 value={stats.active_formations || 0} 
+                 icon={<BookOpen className="text-white" size={24} />} 
+                 color="bg-blue-500" 
+               />
+               <StatCard 
+                 title="Total Catalogue" 
+                 value={stats.total_formations || 0} 
+                 icon={<Users className="text-white" size={24} />} 
+                 color="bg-indigo-500" 
+               />
+               <StatCard 
+                 title="Demandes en attente" 
+                 value={stats.total_demands || 0} 
+                 icon={<Calendar className="text-white" size={24} />} 
+                 color="bg-orange-500" 
+               />
+            </div>
+
+            {/* BARRE DE RECHERCHE & FILTRES */}
+            <div className="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex flex-col sm:flex-row gap-4 justify-between items-center">
+                <div className="relative w-full sm:w-96">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
+                    <input 
+                        type="text" 
+                        placeholder="Rechercher une formation..." 
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition"
+                    />
+                </div>
+                <div className="flex gap-2">
+                    {['all', 'published', 'draft'].map(status => (
+                        <button
+                            key={status}
+                            onClick={() => setFilterStatus(status)}
+                            className={`px-4 py-2 rounded-lg text-sm font-medium capitalize transition ${
+                                filterStatus === status 
+                                ? 'bg-slate-900 text-white' 
+                                : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
+                            }`}
+                        >
+                            {status === 'all' ? 'Toutes' : status === 'published' ? 'Publiées' : 'Brouillons'}
+                        </button>
+                    ))}
+                </div>
+            </div>
+
+            {/* MESSAGE D'ERREUR */}
             {error && (
-              <div className="mb-6 p-4 bg-red-100 text-red-700 rounded-lg border border-red-200">
-                {error}
+              <div className="bg-red-50 text-red-600 p-4 rounded-lg border border-red-200">
+                  {error}
               </div>
             )}
 
-            {/* Statistiques */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-              <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-slate-600 font-medium">Formations Actives</p>
-                    <p className="text-3xl font-bold text-slate-900 mt-2">
-                      {stats.active_formations}
-                    </p>
-                  </div>
-                  <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                    <BookOpen className="w-6 h-6 text-blue-600" />
-                  </div>
+            {/* GRILLE DES FORMATIONS */}
+            {loading ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                    {[1,2,3,4].map(i => <SkeletonCard key={i} />)}
                 </div>
-              </div>
+            ) : filteredFormations.length === 0 ? (
+                <div className="text-center py-20 bg-white rounded-xl border border-dashed border-slate-300">
+                    <div className="bg-slate-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <BookOpen className="text-slate-400" size={32} />
+                    </div>
+                    <h3 className="text-lg font-medium text-slate-900">Aucune formation trouvée</h3>
+                </div>
+            ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                    {filteredFormations.map((formation) => (
+                        <div key={formation.id} className="group bg-white rounded-xl border border-slate-200 hover:shadow-xl hover:border-blue-200 transition-all duration-300 flex flex-col overflow-hidden">
+                            
+                            {/* IMAGE DE COUVERTURE */}
+                            <div className="relative h-48 bg-slate-100 overflow-hidden">
+                                {formation.image_url ? (
+                                    <img 
+                                        src={formation.image_url} 
+                                        alt={formation.name} 
+                                        className="w-full h-full object-cover transform group-hover:scale-105 transition duration-500"
+                                    />
+                                ) : (
+                                    <div className="w-full h-full flex flex-col items-center justify-center text-slate-400 bg-slate-100">
+                                        <ImageIcon size={48} />
+                                        <span className="text-xs mt-2 font-medium">Pas d'image</span>
+                                    </div>
+                                )}
+                                
+                                {/* Badge Statut */}
+                                <div className="absolute top-3 right-3 shadow-sm">
+                                    {getStatusBadge(formation.status)}
+                                </div>
 
-              <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-slate-600 font-medium">Formations Totales</p>
-                    <p className="text-3xl font-bold text-slate-900 mt-2">
-                      {stats.total_formations}
-                    </p>
-                  </div>
-                  <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
-                    <BookOpen className="w-6 h-6 text-orange-600" />
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-slate-600 font-medium">Demandes Totales</p>
-                    <p className="text-3xl font-bold text-slate-900 mt-2">
-                      {stats.total_demands}
-                    </p>
-                  </div>
-                  <button
-                    onClick={() => navigate('/enterprise/formations/create')}
-                    className="flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition"
-                  >
-                    <Plus className="w-5 h-5" />
-                    Créer Nouvelle formation
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            {/* Liste des Formations */}
-            <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-              <div className="p-6 border-b border-slate-200">
-                <h2 className="text-xl font-bold text-slate-900">
-                  Liste de Mes formations
-                </h2>
-              </div>
-
-              {loading ? (
-                <div className="flex justify-center items-center h-64">
-                  <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#0055A4]"></div>
-                </div>
-              ) : formations.length === 0 ? (
-                <div className="p-6 text-center text-slate-600">
-                  Aucune formation trouvée
-                </div>
-              ) : (
-                <div className="overflow-x-auto">
-                  <table className="w-full">
-                    <thead className="bg-slate-50 border-b border-slate-200">
-                      <tr>
-                        <th className="px-6 py-3 text-left text-sm font-semibold text-slate-900">
-                          Nom
-                        </th>
-                        <th className="px-6 py-3 text-left text-sm font-semibold text-slate-900">
-                          Navda/Formation
-                        </th>
-                        <th className="px-6 py-3 text-left text-sm font-semibold text-slate-900">
-                          Catégorie
-                        </th>
-                        <th className="px-6 py-3 text-left text-sm font-semibold text-slate-900">
-                          Début
-                        </th>
-                        <th className="px-6 py-3 text-left text-sm font-semibold text-slate-900">
-                          Statut
-                        </th>
-                        <th className="px-6 py-3 text-left text-sm font-semibold text-slate-900">
-                          Actions
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-200">
-                      {formations.map((formation) => (
-                        <tr key={formation.id} className="hover:bg-slate-50 transition">
-                          <td className="px-6 py-4 text-sm text-slate-900 font-medium">
-                            {formation.name}
-                          </td>
-                          <td className="px-6 py-4 text-sm text-slate-600">
-                            {formation.navda || 'N/A'}
-                          </td>
-                          <td className="px-6 py-4 text-sm text-slate-600">
-                            {formation.category}
-                          </td>
-                          <td className="px-6 py-4 text-sm text-slate-600">
-                            {new Date(formation.start_date).toLocaleDateString('fr-FR')}
-                          </td>
-                          <td className="px-6 py-4">
-                            <span className={`px-3 py-1 rounded-full text-xs font-semibold ${getStatusColor(formation.status)}`}>
-                              {formation.status}
-                            </span>
-                          </td>
-                          <td className="px-6 py-4">
-                            <div className="flex items-center gap-2">
-                              <button
-                                onClick={() => navigate(`/formations/${formation.id}`)}
-                                className="p-2 hover:bg-blue-100 rounded-lg transition text-blue-600"
-                                title="Voir"
-                              >
-                                <Eye className="w-4 h-4" />
-                              </button>
-                              <button
-                                onClick={() => navigate(`/enterprise/formations/${formation.id}/edit`)}
-                                className="p-2 hover:bg-yellow-100 rounded-lg transition text-yellow-600"
-                                title="Éditer"
-                              >
-                                <Edit className="w-4 h-4" />
-                              </button>
-                              <button
-                                onClick={() => handleDelete(formation.id)}
-                                className="p-2 hover:bg-red-100 rounded-lg transition text-red-600"
-                                title="Supprimer"
-                              >
-                                <Trash2 className="w-4 h-4" />
-                              </button>
+                                {/* Actions au survol */}
+                                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center gap-3 backdrop-blur-sm">
+                                     <button onClick={() => navigate(`/formations/${formation.id}`)} className="p-2 bg-white rounded-full hover:bg-blue-50 text-slate-900 transition" title="Voir">
+                                         <Eye size={18} />
+                                     </button>
+                                     <button onClick={() => navigate(`/enterprise/formations/${formation.id}/edit`)} className="p-2 bg-white rounded-full hover:bg-yellow-50 text-yellow-600 transition" title="Modifier">
+                                         <Edit size={18} />
+                                     </button>
+                                     <button onClick={() => handleDelete(formation.id)} className="p-2 bg-white rounded-full hover:bg-red-50 text-red-600 transition" title="Supprimer">
+                                         <Trash2 size={18} />
+                                     </button>
+                                </div>
                             </div>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+
+                            {/* INFO FORMATION */}
+                            <div className="p-5 flex-1 flex flex-col">
+                                <div className="text-xs font-bold text-blue-600 uppercase tracking-wider mb-2">
+                                    {formation.category || 'Non catégorisé'}
+                                </div>
+                                <h3 className="font-bold text-slate-900 text-lg mb-2 line-clamp-2 min-h-[3.5rem]">
+                                    {formation.name}
+                                </h3>
+                                
+                                <div className="mt-auto space-y-3 pt-4 border-t border-slate-100">
+                                    <div className="flex items-center text-sm text-slate-500">
+                                        <Calendar size={16} className="mr-2 text-slate-400" />
+                                        {formation.start_date 
+                                            ? new Date(formation.start_date).toLocaleDateString('fr-FR') 
+                                            : 'Date non définie'}
+                                    </div>
+                                    <div className="flex items-center text-sm text-slate-500">
+                                        <Users size={16} className="mr-2 text-slate-400" />
+                                        {formation.learners_count || 0} Apprenants
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    ))}
                 </div>
-              )}
-            </div>
+            )}
           </div>
         </main>
-
         <Footer />
       </div>
     </div>
   );
 }
+
+// --- SOUS-COMPOSANTS ---
+const StatCard = ({ title, value, icon, color }: { title: string, value: number, icon: React.ReactNode, color: string }) => (
+    <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+        <div>
+            <p className="text-sm font-medium text-slate-500">{title}</p>
+            <p className="text-3xl font-bold text-slate-900 mt-1">{value}</p>
+        </div>
+        <div className={`w-12 h-12 rounded-lg flex items-center justify-center shadow-lg shadow-blue-500/20 ${color}`}>
+            {icon}
+        </div>
+    </div>
+);
+
+const SkeletonCard = () => (
+    <div className="bg-white rounded-xl border border-slate-200 overflow-hidden animate-pulse">
+        <div className="h-48 bg-slate-200"></div>
+        <div className="p-5 space-y-3">
+            <div className="h-4 bg-slate-200 rounded w-1/3"></div>
+            <div className="h-6 bg-slate-200 rounded w-3/4"></div>
+            <div className="h-4 bg-slate-200 rounded w-1/2"></div>
+            <div className="pt-4 border-t border-slate-100 flex gap-2">
+                <div className="h-8 w-8 bg-slate-200 rounded-full"></div>
+                <div className="h-8 w-8 bg-slate-200 rounded-full"></div>
+            </div>
+        </div>
+    </div>
+);
