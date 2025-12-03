@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import axiosInstance from '../api/axios';
+import toast from 'react-hot-toast';
 
 // --- ICONS ---
 const UserIcon = () => (
@@ -41,7 +42,7 @@ interface City {
 
 export default function RegisterPage() {
   const navigate = useNavigate();
-  const { register: authRegister, verifyOtp, error: authError } = useAuth();
+  const { verifyOtp, error: authError } = useAuth();
   
   // --- ÉTATS ---
   const [loading, setLoading] = useState(false);
@@ -181,7 +182,9 @@ export default function RegisterPage() {
     setLoading(true);
 
     if (formData.password !== formData.confirmPassword) {
-      setError('Les mots de passe ne correspondent pas');
+      const msg = 'Les mots de passe ne correspondent pas';
+      setError(msg);
+      toast.error(msg);
       setLoading(false);
       return;
     }
@@ -219,12 +222,23 @@ export default function RegisterPage() {
           headers: { 'Content-Type': 'multipart/form-data' }
       });
 
+      toast.success('Inscription réussie! Vérifiez votre email pour l\'OTP 📧');
       setViewState('otp');
       if (response.data.otp) console.log('OTP DEV:', response.data.otp);
 
-    } catch (err: any) {
+    } catch (err) {
       console.error('Erreur inscription:', err);
-      setError(err.response?.data?.message || err.message || 'Erreur lors de l\'inscription');
+      let errorMsg = 'Erreur lors de l\'inscription';
+      if (err instanceof Error) {
+        if ('response' in err && typeof err.response === 'object' && err.response !== null && 'data' in err.response) {
+          const response = err.response as { data?: { message?: string } };
+          errorMsg = response.data?.message || errorMsg;
+        } else {
+          errorMsg = err.message;
+        }
+      }
+      setError(errorMsg);
+      toast.error(errorMsg);
     } finally {
       setLoading(false);
     }
@@ -236,9 +250,20 @@ export default function RegisterPage() {
     setLoading(true);
     try {
       await verifyOtp(formData.email, otp);
+      toast.success('Email vérifié! Bienvenue 🎉');
       navigate('/dashboard');
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Code OTP invalide');
+    } catch (err) {
+      let errorMsg = 'Code OTP invalide';
+      if (err instanceof Error) {
+        if ('response' in err && typeof err.response === 'object' && err.response !== null && 'data' in err.response) {
+          const response = err.response as { data?: { message?: string } };
+          errorMsg = response.data?.message || errorMsg;
+        } else {
+          errorMsg = err.message;
+        }
+      }
+      setError(errorMsg);
+      toast.error(errorMsg);
     } finally {
       setLoading(false);
     }
@@ -422,6 +447,7 @@ export default function RegisterPage() {
                                         name="entreprise_country_id" 
                                         value={formData.entreprise_country_id} 
                                         onChange={handleChange} 
+                                        aria-label="Sélectionner un pays"
                                         className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:border-[#0055A4] outline-none transition appearance-none"
                                     >
                                         <option value="">Choisir un pays</option>
@@ -439,6 +465,7 @@ export default function RegisterPage() {
                                         value={formData.entreprise_city_id} 
                                         onChange={handleChange} 
                                         disabled={!formData.entreprise_country_id} // Désactivé si pas de pays choisi
+                                        aria-label="Sélectionner une ville"
                                         className={`w-full px-4 py-3 border border-slate-200 rounded-lg focus:bg-white focus:border-[#0055A4] outline-none transition appearance-none ${!formData.entreprise_country_id ? 'bg-slate-100 text-slate-400 cursor-not-allowed' : 'bg-slate-50'}`}
                                     >
                                         <option value="">
@@ -457,7 +484,14 @@ export default function RegisterPage() {
                                 <div className="md:col-span-2">
                                     <label className="block text-xs font-bold uppercase text-slate-500 mb-1">Logo</label>
                                     <div className="relative border-2 border-dashed border-slate-300 rounded-lg p-4 hover:bg-slate-50 transition cursor-pointer text-center">
-                                        <input type="file" accept="image/*" onChange={(e) => handleFileChange(e, 'logo')} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
+                                        <input 
+                                            type="file" 
+                                            accept="image/*" 
+                                            onChange={(e) => handleFileChange(e, 'logo')} 
+                                            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" 
+                                            aria-label="Télécharger le logo de l'entreprise"
+                                            title="Télécharger le logo"
+                                        />
                                         <div className="flex flex-col items-center justify-center text-slate-500">
                                             <UploadIcon />
                                             <span className="text-xs mt-1">{logoFile ? logoFile.name : "Cliquez pour uploader un logo (Max 5Mo)"}</span>
@@ -501,7 +535,14 @@ export default function RegisterPage() {
                                 <div className="animate-fadeIn p-4 bg-slate-50 rounded-xl border border-slate-200 text-left">
                                     <label className="block text-xs font-bold uppercase text-slate-500 mb-2">Documents justificatifs (PDF, IMG...)</label>
                                     <div className="relative border-2 border-dashed border-slate-300 rounded-lg p-6 hover:bg-white transition cursor-pointer text-center bg-white">
-                                        <input type="file" multiple onChange={(e) => handleFileChange(e, 'documents')} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
+                                        <input 
+                                            type="file" 
+                                            multiple 
+                                            onChange={(e) => handleFileChange(e, 'documents')} 
+                                            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" 
+                                            aria-label="Télécharger les documents justificatifs"
+                                            title="Télécharger les documents"
+                                        />
                                         <div className="flex flex-col items-center justify-center text-slate-500">
                                             <UploadIcon />
                                             <span className="text-sm mt-2 font-medium">Glissez vos fichiers ou cliquez ici</span>

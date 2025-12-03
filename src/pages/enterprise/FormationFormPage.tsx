@@ -4,7 +4,7 @@ import { Sidebar } from '../../components/Sidebar';
 import { Header } from '../../components/Header';
 import { Footer } from '../../components/Footer';
 import axiosInstance from '../../api/axios';
-import { ArrowLeft, Image as ImageIcon, Upload } from 'lucide-react';
+import { ArrowLeft, Image as ImageIcon, Upload, Trash2 } from 'lucide-react';
 
 interface City {
   id: number;
@@ -426,7 +426,3 @@ export default function FormationFormPage() {
     </div>
   );
 }
-
-// Icon manquante dans lucide-react (importée manuellement ici si besoin pour éviter l'erreur)
-// Assurez-vous d'avoir 'Trash2' dans les imports en haut
-import { Trash2 } from 'lucide-react';

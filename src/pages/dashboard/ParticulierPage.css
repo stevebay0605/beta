@@ -1,0 +1,30 @@
+.progress-bar-container {
+  width: 100%;
+  background-color: #e2e8f0;
+  border-radius: 9999px;
+  height: 0.5rem;
+}
+
+.progress-bar-formations {
+  background-color: #0055A4;
+  height: 0.5rem;
+  border-radius: 9999px;
+  transition: width 300ms ease-in-out;
+  width: var(--formations-width, 0%);
+}
+
+.progress-bar-certificates {
+  background-color: #F58220;
+  height: 0.5rem;
+  border-radius: 9999px;
+  transition: width 300ms ease-in-out;
+  width: var(--certificates-width, 0%);
+}
+
+.progress-bar-hours {
+  background-color: #9333ea;
+  height: 0.5rem;
+  border-radius: 9999px;
+  transition: width 300ms ease-in-out;
+  width: var(--hours-width, 0%);
+}

@@ -3,10 +3,11 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { Header } from '../components/Header';
 import { Footer } from '../components/Footer';
+import toast from 'react-hot-toast';
 
 export default function LoginPage() {
   const navigate = useNavigate();
-  const { login, error: authError, clearError } = useAuth();
+  const { login } = useAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [formData, setFormData] = useState({
@@ -29,11 +30,20 @@ export default function LoginPage() {
 
     try {
       await login(formData.email, formData.password);
+      toast.success('Connexion réussie! 🎉');
       navigate('/dashboard');
-    } catch (err: any) {
-      setError(
-        err.response?.data?.message || 'Erreur lors de la connexion'
-      );
+    } catch (err) {
+      let errorMsg = 'Erreur lors de la connexion';
+      if (err instanceof Error) {
+        if ('response' in err && typeof err.response === 'object' && err.response !== null && 'data' in err.response) {
+          const response = err.response as { data?: { message?: string } };
+          errorMsg = response.data?.message || errorMsg;
+        } else {
+          errorMsg = err.message;
+        }
+      }
+      setError(errorMsg);
+      toast.error(errorMsg);
     } finally {
       setLoading(false);
     }
@@ -52,9 +62,9 @@ export default function LoginPage() {
               Accédez à votre compte D-CLIC
             </p>
 
-            {(error || authError) && (
+            {error && (
               <div className="mb-4 p-4 bg-red-100 text-red-700 rounded-lg border border-red-200">
-                {error || authError}
+                {error}
               </div>
             )}
 

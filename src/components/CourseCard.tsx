@@ -1,3 +1,5 @@
+import { useNavigate } from 'react-router-dom';
+
 interface Course {
   id: number;
   image: string;
@@ -16,6 +18,12 @@ interface CourseCardProps {
 }
 
 export function CourseCard({ course }: CourseCardProps) {
+  const navigate = useNavigate();
+
+  const handleViewMore = () => {
+    navigate(`/formation/${course.id}`);
+  };
+
   return (
     <div className="group flex transform flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
       <div className="relative h-40 w-full bg-slate-200">
@@ -38,12 +46,12 @@ export function CourseCard({ course }: CourseCardProps) {
         <p className="mb-6 flex-grow text-sm text-slate-700">
           Découvrez cette formation de qualité pour développer vos compétences professionnelles.
         </p>
-        <a
-          href="#"
-          className="mt-auto flex w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-[#0055A4]/10 text-[#0055A4] text-sm font-bold leading-normal hover:bg-[#0055A4]/20"
+        <button
+          onClick={handleViewMore}
+          className="mt-auto flex w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-[#0055A4]/10 text-[#0055A4] text-sm font-bold leading-normal hover:bg-[#0055A4]/20 transition-colors"
         >
           <span className="truncate">Voir plus</span>
-        </a>
+        </button>
       </div>
     </div>
   );

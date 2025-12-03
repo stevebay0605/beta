@@ -1,5 +1,6 @@
 import { createContext, useState, useEffect, useCallback, ReactNode } from 'react';
 import axiosInstance from '../api/axios';
+import { TokenManager } from '../utils/TokenManager';
 
 interface User {
   id: number;
@@ -14,6 +15,15 @@ interface User {
     id: number;
     name: string;
   };
+  [key: string]: unknown;
+}
+
+interface RegisterFormData {
+  role_id: string | number;
+  name: string;
+  email: string;
+  password: string;
+  [key: string]: unknown;
 }
 
 interface AuthContextType {
@@ -21,9 +31,9 @@ interface AuthContextType {
   loading: boolean;
   error: string | null;
   isAuthenticated: boolean;
-  register: (formData: any) => Promise<any>;
-  verifyOtp: (email: string, otp: string) => Promise<any>;
-  login: (email: string, password: string) => Promise<any>;
+  register: (formData: RegisterFormData) => Promise<unknown>;
+  verifyOtp: (email: string, otp: string) => Promise<unknown>;
+  login: (email: string, password: string) => Promise<unknown>;
   logout: () => Promise<void>;
   clearError: () => void;
   updateUser: (userData: User) => void;
@@ -43,17 +53,16 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   // Vérifier l'authentification au chargement
   useEffect(() => {
-    const token = localStorage.getItem('auth_token');
-    const storedUser = localStorage.getItem('user');
+    const token = TokenManager.getToken();
+    const storedUser = TokenManager.getUser();
 
     if (token && storedUser) {
       try {
-        setUser(JSON.parse(storedUser));
+        setUser(storedUser as User);
         setIsAuthenticated(true);
       } catch (err) {
-        console.error('Erreur lors du parsing de l\'utilisateur stocké', err);
-        localStorage.removeItem('auth_token');
-        localStorage.removeItem('user');
+        console.error('Erreur lors de la récupération de l\'utilisateur', err);
+        TokenManager.clearAll();
       }
     }
     setLoading(false);
@@ -63,17 +72,22 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     setError(null);
   }, []);
 
-  const register = useCallback(async (formData: any) => {
+  const register = useCallback(async (formData: RegisterFormData) => {
     try {
       setError(null);
       const response = await axiosInstance.post('/register', formData);
       return response.data;
-    } catch (err: any) {
-      const message =
-        err.response?.data?.message ||
-        err.message ||
-        'Erreur lors de l\'inscription';
-      setError(message);
+    } catch (err) {
+      let errorMsg = 'Erreur lors de l\'inscription';
+      if (err instanceof Error) {
+        if ('response' in err && typeof err.response === 'object' && err.response !== null && 'data' in err.response) {
+          const response = err.response as { data?: { message?: string } };
+          errorMsg = response.data?.message || errorMsg;
+        } else {
+          errorMsg = err.message;
+        }
+      }
+      setError(errorMsg);
       throw err;
     }
   }, []);
@@ -82,19 +96,25 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     try {
       setError(null);
       const response = await axiosInstance.post('/verify-otp', { email, otp });
-      const { token, user: userData } = response.data;
+      const { token, user: userData } = response.data as { token: string; user: User };
 
-      localStorage.setItem('auth_token', token);
-      localStorage.setItem('user', JSON.stringify(userData));
+      TokenManager.setToken(token);
+      TokenManager.setUser(userData);
       setUser(userData);
       setIsAuthenticated(true);
 
       return response.data;
-    } catch (err: any) {
-      const message =
-        err.response?.data?.message ||
-        'Erreur lors de la vérification OTP';
-      setError(message);
+    } catch (err) {
+      let errorMsg = 'Erreur lors de la vérification OTP';
+      if (err instanceof Error) {
+        if ('response' in err && typeof err.response === 'object' && err.response !== null && 'data' in err.response) {
+          const response = err.response as { data?: { message?: string } };
+          errorMsg = response.data?.message || errorMsg;
+        } else {
+          errorMsg = err.message;
+        }
+      }
+      setError(errorMsg);
       throw err;
     }
   }, []);
@@ -103,18 +123,25 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     try {
       setError(null);
       const response = await axiosInstance.post('/login', { email, password });
-      const { token, user: userData } = response.data;
+      const { token, user: userData } = response.data as { token: string; user: User };
 
-      localStorage.setItem('auth_token', token);
-      localStorage.setItem('user', JSON.stringify(userData));
+      TokenManager.setToken(token);
+      TokenManager.setUser(userData);
       setUser(userData);
       setIsAuthenticated(true);
 
       return response.data;
-    } catch (err: any) {
-      const message =
-        err.response?.data?.message || 'Erreur lors de la connexion';
-      setError(message);
+    } catch (err) {
+      let errorMsg = 'Erreur lors de la connexion';
+      if (err instanceof Error) {
+        if ('response' in err && typeof err.response === 'object' && err.response !== null && 'data' in err.response) {
+          const response = err.response as { data?: { message?: string } };
+          errorMsg = response.data?.message || errorMsg;
+        } else {
+          errorMsg = err.message;
+        }
+      }
+      setError(errorMsg);
       throw err;
     }
   }, []);
@@ -125,8 +152,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     } catch (err) {
       console.error('Erreur lors de la déconnexion', err);
     } finally {
-      localStorage.removeItem('auth_token');
-      localStorage.removeItem('user');
+      TokenManager.clearAll();
       setUser(null);
       setIsAuthenticated(false);
     }
@@ -134,7 +160,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   const updateUser = useCallback((userData: User) => {
     setUser(userData);
-    localStorage.setItem('user', JSON.stringify(userData));
+    TokenManager.setUser(userData);
   }, []);
 
   const value: AuthContextType = {
