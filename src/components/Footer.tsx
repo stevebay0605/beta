@@ -17,10 +17,10 @@ export function Footer() {
                   <path d="M8.578 8.578a23.9 23.9 0 0 0-5.968 11.167A23.9 23.9 0 0 0 3.85 32.346a23.9 23.9 0 0 0 8.033 9.788 23.9 23.9 0 0 0 12.117 3.676 23.9 23.9 0 0 0 12.117-3.676 23.9 23.9 0 0 0 8.033-9.788 23.9 23.9 0 0 0 1.24-12.601A23.9 23.9 0 0 0 39.422 8.578L24 24 8.578 8.578z"></path>
                 </svg>
               </div>
-              <h2 className="text-md font-bold">Formations D-CLIC</h2>
+              <h2 className="text-md font-bold">PNFC</h2>
             </div>
             <p className="mt-4 text-sm text-slate-600 dark:text-slate-400">
-              Votre portail pour les formations numériques au Congo.
+              Plateforme Nationale de Formation Congolaise - Votre portail pour les formations numériques au Congo.
             </p>
           </div>
 
@@ -91,9 +91,9 @@ export function Footer() {
               <li>
                 <a
                   className="text-sm text-slate-600 dark:text-slate-400 hover:text-[#0055A4]"
-                  href="mailto:contact@d-clic.com"
+                  href="mailto:contact@pnfc.cd"
                 >
-                  contact@d-clic.com
+                  contact@pnfc.cd
                 </a>
               </li>
             </ul>
@@ -102,7 +102,7 @@ export function Footer() {
 
         {/* Copyright */}
         <div className="mt-8 border-t border-slate-200 dark:border-slate-800 pt-6 text-center text-sm text-slate-500 dark:text-slate-400">
-          <p>© 2024 Formations D-CLIC. Tous droits réservés.</p>
+          <p>© 2024 PNFC - Plateforme Nationale de Formation Congolaise. Tous droits réservés.</p>
         </div>
       </div>
     </footer>

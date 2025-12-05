@@ -44,37 +44,47 @@ export const Sidebar = () => {
     await logout();
   };
 
+  // Vérifier si le chemin actuel correspond ou commence par le chemin du menu
+  const isActivePath = (path: string) => {
+    return location.pathname === path || location.pathname.startsWith(path + '/');
+  };
+
   return (
-    <aside className="w-64 bg-slate-900 text-white h-screen fixed left-0 top-0 overflow-y-auto">
+    <aside className="w-64 bg-gradient-to-b from-gray-xdark to-gray-dark text-white h-screen fixed left-0 top-0 overflow-y-auto shadow-2xl z-40">
       {/* Logo */}
-      <div className="p-6 border-b border-slate-700">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-[#0055A4] rounded-lg flex items-center justify-center font-bold">
-            D
+      <div className="p-6 border-b border-gray-dark">
+        <Link to="/dashboard" className="flex items-center gap-3 group">
+          <div className="w-12 h-12 bg-gradient-to-br from-primary to-accent rounded-xl flex items-center justify-center font-bold shadow-lg group-hover:scale-110 transition-transform duration-300">
+            P
           </div>
           <div>
-            <h1 className="font-bold text-lg">D-CLIC</h1>
-            <p className="text-xs text-slate-400">Admin</p>
+            <h1 className="font-bold text-lg group-hover:text-accent transition-colors">PNFC</h1>
+            <p className="text-xs text-gray-medium">Admin</p>
           </div>
-        </div>
+        </Link>
       </div>
 
       {/* Menu Items */}
       <nav className="p-4 space-y-2">
         {menuItems.map((item) => {
-          const isActive = location.pathname === item.path;
+          const isActive = isActivePath(item.path);
           return (
             <Link
               key={item.path}
               to={item.path}
-              className={`flex items-center gap-3 px-4 py-3 rounded-lg transition ${
+              className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group ${
                 isActive
-                  ? 'bg-[#0055A4] text-white'
-                  : 'text-slate-300 hover:bg-slate-800'
+                  ? 'bg-gradient-to-r from-primary to-accent text-white shadow-lg shadow-primary/30'
+                  : 'text-gray-medium hover:bg-gray-dark hover:text-white hover:translate-x-1'
               }`}
             >
-              {item.icon}
-              <span className="font-medium">{item.label}</span>
+              <span className={`${isActive ? 'text-white' : 'text-gray-medium group-hover:text-accent'} transition-colors`}>
+                {item.icon}
+              </span>
+              <span className="font-semibold">{item.label}</span>
+              {isActive && (
+                <div className="ml-auto w-2 h-2 bg-white rounded-full"></div>
+              )}
             </Link>
           );
         })}
@@ -84,7 +94,7 @@ export const Sidebar = () => {
       <div className="absolute bottom-6 left-4 right-4">
         <button
           onClick={handleLogout}
-          className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-red-600 hover:bg-red-700 rounded-lg transition font-medium"
+          className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-error/20 hover:bg-error/30 text-error border-2 border-error/30 hover:border-error/50 rounded-xl transition-all duration-200 font-bold hover:shadow-lg hover:shadow-error/20"
         >
           <LogOut className="w-5 h-5" />
           Déconnexion

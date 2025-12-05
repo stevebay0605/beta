@@ -33,7 +33,7 @@ export function FeaturesSection() {
       <div className="container mx-auto px-4">
         <div className="text-center mb-16">
           <h2 className="text-4xl md:text-5xl font-black text-slate-900 dark:text-white mb-4">
-            Pourquoi D-CLIC ?
+            Pourquoi PNFC ?
           </h2>
           <p className="text-lg text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">
             Une plateforme centralisée pour accéder à toutes les opportunités de

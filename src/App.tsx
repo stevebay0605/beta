@@ -15,6 +15,9 @@ import EnterprisePage from './pages/dashboard/EnterprisePage';
 import ParticulierPage from './pages/dashboard/ParticulierPage';
 import EnterpriseFormationsPage from './pages/enterprise/EnterpriseFormationsPage';
 import FormationFormPage from './pages/enterprise/FormationFormPage';
+import FormateursPage from './pages/enterprise/FormateursPage';
+import ProfilStructurePage from './pages/enterprise/ProfilStructurePage';
+import StatistiquesPage from './pages/enterprise/StatistiquesPage';
 
 function App() {
   return (
@@ -111,6 +114,30 @@ function App() {
             element={
               <ProtectedEnterpriseRoute>
                 <FormationFormPage />
+              </ProtectedEnterpriseRoute>
+            }
+          />
+          <Route
+            path="/enterprise/formateurs"
+            element={
+              <ProtectedEnterpriseRoute>
+                <FormateursPage />
+              </ProtectedEnterpriseRoute>
+            }
+          />
+          <Route
+            path="/enterprise/profil"
+            element={
+              <ProtectedEnterpriseRoute>
+                <ProfilStructurePage />
+              </ProtectedEnterpriseRoute>
+            }
+          />
+          <Route
+            path="/enterprise/statistiques"
+            element={
+              <ProtectedEnterpriseRoute>
+                <StatistiquesPage />
               </ProtectedEnterpriseRoute>
             }
           />

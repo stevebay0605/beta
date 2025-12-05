@@ -22,8 +22,14 @@ export default function DashboardPage() {
 
   // Afficher un loader pendant la redirection
   return (
-    <div className="flex justify-center items-center h-screen">
-      <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#0055A4]"></div>
+    <div className="flex flex-col justify-center items-center h-screen bg-gradient-to-br from-bg-light via-white to-primary/5">
+      <div className="relative">
+        <div className="animate-spin rounded-full h-16 w-16 border-4 border-primary/20 border-t-primary"></div>
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="w-8 h-8 bg-primary rounded-full animate-pulse"></div>
+        </div>
+      </div>
+      <p className="mt-6 text-gray-dark font-semibold">Chargement...</p>
     </div>
   );
 }

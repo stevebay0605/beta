@@ -50,70 +50,100 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="relative flex min-h-screen w-full flex-col">
+    <div className="min-h-screen bg-gradient-to-br from-bg-light via-white to-primary/5 flex flex-col">
       <Header />
       <main className="flex-grow flex items-center justify-center px-4 py-12">
         <div className="w-full max-w-md">
-          <div className="bg-white rounded-xl shadow-lg p-8">
-            <h2 className="text-3xl font-black text-slate-900 mb-2">
-              Connexion
-            </h2>
-            <p className="text-slate-600 mb-8">
-              Accédez à votre compte D-CLIC
-            </p>
-
-            {error && (
-              <div className="mb-4 p-4 bg-red-100 text-red-700 rounded-lg border border-red-200">
-                {error}
+          <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
+            {/* Header de la carte avec gradient */}
+            <div className="bg-gradient-to-r from-primary to-accent p-6 text-center">
+              <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
               </div>
-            )}
+              <h2 className="text-2xl md:text-3xl font-black text-white mb-2">
+                Connexion
+              </h2>
+              <p className="text-white/90 text-sm">
+                Accédez à votre compte PNFC
+              </p>
+            </div>
 
-            <form onSubmit={handleSubmit}>
-              <div className="mb-4">
-                <label className="block text-sm font-bold text-slate-900 mb-2">
-                  Email
-                </label>
-                <input
-                  type="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  required
-                  className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-[#0055A4] focus:border-transparent transition"
-                  placeholder="votre@email.com"
-                />
+            <div className="p-8">
+              {error && (
+                <div className="mb-6 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 text-sm rounded-r-lg">
+                  <div className="flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span>{error}</span>
+                  </div>
+                </div>
+              )}
+
+              <form onSubmit={handleSubmit} className="space-y-5">
+                <div>
+                  <label className="block text-xs font-bold uppercase text-slate-500 mb-2">
+                    Email
+                  </label>
+                  <input
+                    type="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    required
+                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition placeholder:text-slate-400"
+                    placeholder="votre@email.com"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold uppercase text-slate-500 mb-2">
+                    Mot de passe
+                  </label>
+                  <input
+                    type="password"
+                    name="password"
+                    value={formData.password}
+                    onChange={handleChange}
+                    required
+                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition placeholder:text-slate-400"
+                    placeholder="••••••••"
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full bg-primary text-white py-3.5 rounded-lg font-bold hover:bg-accent transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-accent/30 hover:-translate-y-0.5"
+                >
+                  {loading ? (
+                    <span className="flex items-center justify-center gap-2">
+                      <span className="loading loading-spinner loading-sm"></span>
+                      Connexion en cours...
+                    </span>
+                  ) : (
+                    'Se connecter'
+                  )}
+                </button>
+              </form>
+
+              <div className="mt-8 pt-6 border-t border-slate-100 text-center">
+                <p className="text-slate-500 text-sm mb-2">
+                  Vous n'avez pas de compte ?
+                </p>
+                <Link 
+                  to="/register" 
+                  className="inline-flex items-center gap-2 text-primary font-bold hover:text-accent transition-colors text-sm"
+                >
+                  <span>S'inscrire</span>
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </Link>
               </div>
-
-              <div className="mb-6">
-                <label className="block text-sm font-bold text-slate-900 mb-2">
-                  Mot de passe
-                </label>
-                <input
-                  type="password"
-                  name="password"
-                  value={formData.password}
-                  onChange={handleChange}
-                  required
-                  className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-[#0055A4] focus:border-transparent transition"
-                  placeholder="••••••••"
-                />
-              </div>
-
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full bg-[#0055A4] text-white py-3 rounded-lg hover:opacity-90 disabled:opacity-50 transition font-bold text-base"
-              >
-                {loading ? 'Connexion en cours...' : 'Se connecter'}
-              </button>
-            </form>
-
-            <p className="text-center mt-6 text-slate-600">
-              Vous n'avez pas de compte?{' '}
-              <Link to="/register" className="text-[#0055A4] font-bold hover:underline">
-                S'inscrire
-              </Link>
-            </p>
+            </div>
           </div>
         </div>
       </main>

@@ -22,103 +22,34 @@ interface Formation {
   price?: number;
   duree?: string;
   category?: string;
+  // Champs supplémentaires depuis le backend
+  entreprise?: {
+    id: number;
+    name: string;
+    logo?: string;
+  };
+  entreprise_name?: string; // Nom de l'entreprise (si pas d'objet)
+  instructor?: string;
+  rating?: number;
+  reviews_count?: number;
+  created_at?: string;
+  updated_at?: string;
 }
-
-const DEFAULT_FORMATIONS: Formation[] = [
-  {
-    id: 1,
-    title: 'Introduction au Développement Web',
-    description: 'Apprenez les bases du web avec HTML, CSS et JavaScript',
-    image_url: 'https://images.pexels.com/photos/3184291/pexels-photo-3184291.jpeg?auto=compress&cs=tinysrgb&w=600',
-    provider: 'OIF - D-CLIC',
-    location: 'Kinshasa',
-    type: 'En ligne',
-    level: 'IT',
-    certificate: true,
-    price: 25000,
-    duree: '3 mois',
-    category: 'Développement',
-  },
-  {
-    id: 2,
-    title: 'Principes du Design d\'Interface',
-    description: 'Maîtrisez les bases du design UI/UX moderne',
-    image_url: 'https://images.pexels.com/photos/3184338/pexels-photo-3184338.jpeg?auto=compress&cs=tinysrgb&w=600',
-    provider: 'Université de Brazzaville',
-    location: 'Brazzaville',
-    type: 'Formation',
-    level: 'IT',
-    certificate: true,
-    price: 35000,
-    duree: '2 mois',
-    category: 'Design',
-  },
-  {
-    id: 3,
-    title: 'Gestion de Projet Agile avec Scrum',
-    description: 'Apprenez les méthodologies Agile et Scrum',
-    image_url: 'https://images.pexels.com/photos/3184339/pexels-photo-3184339.jpeg?auto=compress&cs=tinysrgb&w=600',
-    provider: 'TechHub Congo',
-    location: 'Kinshasa',
-    type: 'Formation',
-    level: 'IT',
-    certificate: true,
-    price: 30000,
-    duree: '1.5 mois',
-    category: 'Gestion',
-  },
-  {
-    id: 4,
-    title: 'Développement Web Fullstack',
-    description: 'Devenez développeur fullstack avec React et Node.js',
-    image_url: 'https://images.pexels.com/photos/3184292/pexels-photo-3184292.jpeg?auto=compress&cs=tinysrgb&w=600',
-    provider: 'Structure Design Tech',
-    location: 'Kinshasa',
-    type: 'En ligne',
-    level: 'IT',
-    certificate: true,
-    price: 50000,
-    duree: '4 mois',
-    category: 'Développement',
-  },
-  {
-    id: 5,
-    title: 'Marketing Digital Avancé',
-    description: 'Stratégies marketing pour les réseaux sociaux et le web',
-    image_url: 'https://images.pexels.com/photos/3184287/pexels-photo-3184287.jpeg?auto=compress&cs=tinysrgb&w=600',
-    provider: 'Digital Academy',
-    location: 'Kinshasa',
-    type: 'Formation',
-    level: 'IT',
-    certificate: true,
-    price: 20000,
-    duree: '6 semaines',
-    category: 'Marketing',
-  },
-  {
-    id: 6,
-    title: 'Python pour la Data Science',
-    description: 'Analyse de données avec Python et pandas',
-    image_url: 'https://images.pexels.com/photos/3184360/pexels-photo-3184360.jpeg?auto=compress&cs=tinysrgb&w=600',
-    provider: 'Tech Institute',
-    location: 'Kinshasa',
-    type: 'Formation',
-    level: 'IT',
-    certificate: true,
-    price: 40000,
-    duree: '3 mois',
-    category: 'Data Science',
-  },
-];
 
 const ITEMS_PER_PAGE = 12;
 
 function Catalogue() {
-  const { data: formations } = useFetch<Formation[]>({
+  const { data: response, loading, error } = useFetch<Formation[] | { data: Formation[] }>({
     url: '/formations',
   });
   
-  const allFormations = formations && formations.length > 0 ? formations : DEFAULT_FORMATIONS;
+  // Gérer différents formats de réponse API (array direct ou { data: array })
+  const formations = Array.isArray(response) 
+    ? response 
+    : (response as { data?: Formation[] })?.data || [];
+  
+  // Utiliser uniquement les données du backend, pas de fallback
+  const allFormations = formations || [];
   const { filters, updateFilter, resetFilters, filteredFormations } = useSearchFilters(allFormations);
   
   // Pagination
@@ -175,16 +106,41 @@ function Catalogue() {
 
           {/* Catalog Grid */}
           <div className="lg:col-span-3">
-            {filteredFormations.length === 0 ? (
+            {loading ? (
+              <div className="col-span-full text-center py-12">
+                <div className="flex flex-col items-center gap-4">
+                  <div className="loading loading-spinner loading-lg text-primary"></div>
+                  <p className="text-slate-600 text-lg font-semibold">Chargement des formations...</p>
+                </div>
+              </div>
+            ) : error ? (
+              <div className="col-span-full text-center py-12">
+                <div className="alert alert-error max-w-md mx-auto">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <div>
+                    <h3 className="font-bold">Erreur de chargement</h3>
+                    <div className="text-xs">{error}</div>
+                  </div>
+                </div>
+              </div>
+            ) : filteredFormations.length === 0 ? (
               <div className="col-span-full text-center py-12">
                 <p className="text-slate-600 text-lg font-semibold mb-2">Aucune formation trouvée</p>
-                <p className="text-slate-500 text-sm mb-4">Essayez d'ajuster vos filtres ou votre recherche</p>
-                <button
-                  onClick={handleReset}
-                  className="px-6 py-2 bg-[#0055A4] text-white rounded-lg font-bold hover:opacity-90 transition"
-                >
-                  Réinitialiser les filtres
-                </button>
+                <p className="text-slate-500 text-sm mb-4">
+                  {allFormations.length === 0 
+                    ? "Aucune formation disponible pour le moment" 
+                    : "Essayez d'ajuster vos filtres ou votre recherche"}
+                </p>
+                {allFormations.length > 0 && (
+                  <button
+                    onClick={handleReset}
+                    className="px-6 py-2 bg-primary text-white rounded-lg font-bold hover:bg-accent transition"
+                  >
+                    Réinitialiser les filtres
+                  </button>
+                )}
               </div>
             ) : (
               <>

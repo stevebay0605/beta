@@ -18,7 +18,7 @@ export function HeroSection() {
           </h1>
           <p className="text-xl md:text-2xl text-slate-100 mb-12 max-w-2xl mx-auto">
             Découvrez des opportunités de formation provenant d'organisations du
-            monde entier. Lancez votre carrière avec D-CLIC.
+            monde entier. Lancez votre carrière avec PNFC.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link

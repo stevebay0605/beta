@@ -9,8 +9,8 @@ interface SearchSectionProps {
 
 export function SearchSection({ filters, onSearchChange, resultCount }: SearchSectionProps) {
   return (
-    <div className="sticky top-20 z-40 mb-8">
-      <div className="relative rounded-xl border border-slate-200/80 bg-white/80 backdrop-blur-lg p-4 shadow-sm">
+    <div className="sticky top-16 z-40 mb-8 bg-white/95 backdrop-blur-md border-b border-gray-medium -mx-4 md:-mx-6 lg:-mx-8 px-4 md:px-6 lg:px-8 py-4">
+      <div className="relative rounded-xl border border-slate-200/80 bg-white p-4 shadow-sm">
         <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
           {/* Barre de recherche principale */}
           <div className="relative md:col-span-8">

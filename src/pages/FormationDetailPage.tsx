@@ -24,124 +24,80 @@ interface Formation {
   title: string;
   description: string;
   image_url?: string;
+  image_couverture?: string;
   resume?: string;
   provider?: string;
+  entreprise?: {
+    id: number;
+    name: string;
+    logo?: string;
+  };
+  entreprise_name?: string;
   location?: string;
+  city?: {
+    id: number;
+    name: string;
+  };
+  city_id?: number;
   type?: string;
   level?: string;
   certificate?: boolean;
   price?: number;
   duree?: string;
   category?: string;
+  sector?: string;
   detailed_description?: string;
-  objectives?: string[];
-  prerequisites?: string[];
+  objectives?: string[] | string;
+  prerequisites?: string[] | string;
+  programme?: string;
   program?: string[];
   instructor?: string;
   rating?: number;
   reviews_count?: number;
+  enrolled_count?: number;
+  created_at?: string;
+  updated_at?: string;
 }
-
-const DEFAULT_FORMATIONS: Formation[] = [
-  {
-    id: 1,
-    title: 'Introduction au Développement Web',
-    description: 'Apprenez les bases du web avec HTML, CSS et JavaScript',
-    image_url: 'https://images.pexels.com/photos/3184291/pexels-photo-3184291.jpeg?auto=compress&cs=tinysrgb&w=600',
-    provider: 'OIF - D-CLIC',
-    location: 'Kinshasa',
-    type: 'En ligne',
-    level: 'IT',
-    certificate: true,
-    price: 25000,
-    duree: '3 mois',
-    category: 'Développement',
-    detailed_description: 'Une formation complète pour apprendre les fondamentaux du développement web. Vous apprendrez HTML5, CSS3 et JavaScript moderne. Cette formation est conçue pour les débutants et vous guide pas à pas dans la création de sites web interactifs.',
-    objectives: [
-      'Maîtriser les bases de HTML5 et CSS3',
-      'Comprendre les principes du JavaScript',
-      'Créer des pages web responsives',
-      'Utiliser les outils de développement modernes',
-    ],
-    prerequisites: [
-      'Connaissances informatiques basiques',
-      'Accès à un ordinateur et une connexion internet',
-    ],
-    program: [
-      'Semaines 1-2: HTML5 et structure des pages',
-      'Semaines 3-4: CSS3 et styling avancé',
-      'Semaines 5-8: JavaScript et interactivité',
-      'Semaines 9-12: Projet final et portfolio',
-    ],
-    instructor: 'Jean Mukonde',
-    rating: 4.5,
-    reviews_count: 245,
-  },
-  {
-    id: 2,
-    title: 'Principes du Design d\'Interface',
-    description: 'Maîtrisez les bases du design UI/UX moderne',
-    image_url: 'https://images.pexels.com/photos/3184338/pexels-photo-3184338.jpeg?auto=compress&cs=tinysrgb&w=600',
-    provider: 'Université de Brazzaville',
-    location: 'Brazzaville',
-    type: 'Formation',
-    level: 'IT',
-    certificate: true,
-    price: 35000,
-    duree: '2 mois',
-    category: 'Design',
-    detailed_description: 'Apprenez les principes fondamentaux du design UI/UX. Cette formation couvre la théorie des couleurs, la typographie, l\'ergonomie et les meilleures pratiques du design moderne.',
-    objectives: [
-      'Comprendre les principes du design UI/UX',
-      'Maîtriser l\'utilisation des outils de design',
-      'Créer des interfaces utilisateur efficaces',
-      'Implémenter les meilleures pratiques d\'accessibilité',
-    ],
-    prerequisites: [
-      'Intérêt pour le design',
-      'Connaissance basique des outils numériques',
-    ],
-    program: [
-      'Semaine 1: Fondamentaux du design',
-      'Semaine 2-3: Théorie des couleurs et typographie',
-      'Semaine 4-5: Outils de design modernes (Figma)',
-      'Semaine 6-8: Projets pratiques et portfolio',
-    ],
-    instructor: 'Marie Kinshasa',
-    rating: 4.7,
-    reviews_count: 189,
-  },
-];
 
 function FormationDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
   const [isFavorite, setIsFavorite] = useState(false);
-  const [formation, setFormation] = useState<Formation | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'overview' | 'program' | 'reviews'>('overview');
 
-  // Simuler le fetch de la formation
+  // Charger la formation depuis le backend
+  const { data: response, loading: isLoading, error } = useFetch<Formation | { data: Formation }>({
+    url: `/formations/${id}`,
+  });
+
+  // Gérer différents formats de réponse API
+  const formation = response 
+    ? (Array.isArray(response) ? response[0] : (response as { data?: Formation })?.data || response as Formation)
+    : null;
+
+  // Rediriger si erreur ou formation non trouvée
   useEffect(() => {
-    setIsLoading(true);
-    const formationId = parseInt(id || '0');
-    const found = DEFAULT_FORMATIONS.find(f => f.id === formationId);
-    if (found) {
-      setFormation(found);
-    } else {
+    if (!isLoading && (error || !formation)) {
       toast.error('Formation non trouvée');
       navigate('/catalogue');
     }
-    setIsLoading(false);
-  }, [id, navigate]);
+  }, [isLoading, error, formation, navigate]);
 
   if (isLoading) {
     return (
-      <div className="relative flex min-h-screen w-full flex-col">
+      <div className="relative flex min-h-screen w-full flex-col bg-gradient-to-br from-bg-light via-white to-primary/5">
         <Header />
         <div className="flex-grow flex items-center justify-center">
-          <div className="animate-pulse text-slate-500">Chargement...</div>
+          <div className="text-center">
+            <div className="relative mx-auto mb-4">
+              <div className="animate-spin rounded-full h-16 w-16 border-4 border-primary/20 border-t-primary"></div>
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="w-8 h-8 bg-primary rounded-full animate-pulse"></div>
+              </div>
+            </div>
+            <p className="text-gray-dark font-semibold">Chargement de la formation...</p>
+          </div>
         </div>
         <Footer />
       </div>
@@ -149,7 +105,23 @@ function FormationDetailPage() {
   }
 
   if (!formation) {
-    return null;
+    return (
+      <div className="relative flex min-h-screen w-full flex-col bg-gradient-to-br from-bg-light via-white to-primary/5">
+        <Header />
+        <div className="flex-grow flex items-center justify-center">
+          <div className="text-center">
+            <p className="text-gray-dark text-lg font-semibold mb-4">Formation non trouvée</p>
+            <button
+              onClick={() => navigate('/catalogue')}
+              className="btn btn-primary"
+            >
+              Retour au catalogue
+            </button>
+          </div>
+        </div>
+        <Footer />
+      </div>
+    );
   }
 
   const handleShare = () => {
@@ -195,9 +167,9 @@ function FormationDetailPage() {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
               {/* Main Content */}
               <div className="lg:col-span-2">
-                <div className="rounded-lg overflow-hidden mb-6">
+                <div className="rounded-lg overflow-hidden mb-6 shadow-md">
                   <img
-                    src={formation.image_url}
+                    src={formation.image_url || formation.image_couverture || 'https://via.placeholder.com/800x400?text=Formation'}
                     alt={formation.title}
                     className="w-full h-96 object-cover"
                   />
@@ -224,9 +196,11 @@ function FormationDetailPage() {
                       {formation.rating?.toFixed(1)} ({formation.reviews_count} avis)
                     </span>
                   </div>
-                  <span className="text-slate-600 font-semibold">{formation.provider}</span>
+                  <span className="text-slate-600 font-semibold">
+                    {formation.entreprise?.name || formation.entreprise_name || formation.provider || 'PNFC'}
+                  </span>
                   <span className="px-3 py-1 bg-blue-100 text-[#0055A4] rounded-full text-sm font-semibold">
-                    {formation.category}
+                    {formation.category || formation.sector || 'Formation'}
                   </span>
                 </div>
 
@@ -237,30 +211,32 @@ function FormationDetailPage() {
 
                 {/* Key Info Cards */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-                  <div className="p-4 bg-slate-50 rounded-lg">
+                  <div className="p-4 bg-slate-50 rounded-lg border border-slate-200 hover:bg-slate-100 transition">
                     <div className="flex items-center gap-2 text-slate-600 mb-2">
-                      <Clock size={20} />
+                      <Clock size={20} className="text-[#0055A4]" />
                       <span className="text-sm font-semibold">Durée</span>
                     </div>
                     <p className="text-slate-900 font-bold">{formation.duree}</p>
                   </div>
-                  <div className="p-4 bg-slate-50 rounded-lg">
+                  <div className="p-4 bg-slate-50 rounded-lg border border-slate-200 hover:bg-slate-100 transition">
                     <div className="flex items-center gap-2 text-slate-600 mb-2">
-                      <MapPin size={20} />
+                      <MapPin size={20} className="text-[#0055A4]" />
                       <span className="text-sm font-semibold">Lieu</span>
                     </div>
-                    <p className="text-slate-900 font-bold">{formation.location}</p>
+                    <p className="text-slate-900 font-bold">
+                      {formation.city?.name || formation.location || 'Non spécifié'}
+                    </p>
                   </div>
-                  <div className="p-4 bg-slate-50 rounded-lg">
+                  <div className="p-4 bg-slate-50 rounded-lg border border-slate-200 hover:bg-slate-100 transition">
                     <div className="flex items-center gap-2 text-slate-600 mb-2">
-                      <Users size={20} />
+                      <Users size={20} className="text-[#0055A4]" />
                       <span className="text-sm font-semibold">Type</span>
                     </div>
                     <p className="text-slate-900 font-bold">{formation.type}</p>
                   </div>
-                  <div className="p-4 bg-slate-50 rounded-lg">
+                  <div className="p-4 bg-slate-50 rounded-lg border border-slate-200 hover:bg-slate-100 transition">
                     <div className="flex items-center gap-2 text-slate-600 mb-2">
-                      <Certificate size={20} />
+                      <Award size={20} className="text-[#0055A4]" />
                       <span className="text-sm font-semibold">Certificat</span>
                     </div>
                     <p className="text-slate-900 font-bold">
@@ -315,7 +291,12 @@ function FormationDetailPage() {
                           Objectifs de la formation
                         </h2>
                         <ul className="space-y-3">
-                          {formation.objectives.map((objective, index) => (
+                          {(Array.isArray(formation.objectives) 
+                            ? formation.objectives 
+                            : typeof formation.objectives === 'string' 
+                              ? formation.objectives.split('\n').filter(o => o.trim())
+                              : []
+                          ).map((objective, index) => (
                             <li key={index} className="flex gap-3">
                               <span className="text-[#0055A4] font-bold mt-1">✓</span>
                               <span className="text-slate-700">{objective}</span>
@@ -332,7 +313,12 @@ function FormationDetailPage() {
                           Prérequis
                         </h2>
                         <ul className="space-y-3">
-                          {formation.prerequisites.map((prerequisite, index) => (
+                          {(Array.isArray(formation.prerequisites) 
+                            ? formation.prerequisites 
+                            : typeof formation.prerequisites === 'string' 
+                              ? formation.prerequisites.split('\n').filter(p => p.trim())
+                              : []
+                          ).map((prerequisite, index) => (
                             <li key={index} className="flex gap-3">
                               <span className="text-slate-400 font-bold mt-1">•</span>
                               <span className="text-slate-700">{prerequisite}</span>
@@ -344,7 +330,7 @@ function FormationDetailPage() {
 
                     {/* Instructor */}
                     {formation.instructor && (
-                      <div className="bg-blue-50 p-6 rounded-lg">
+                      <div className="bg-blue-50 p-6 rounded-lg border border-blue-200">
                         <h2 className="text-2xl font-bold text-slate-900 mb-2">
                           Instructeur
                         </h2>
@@ -354,18 +340,40 @@ function FormationDetailPage() {
                   </div>
                 )}
 
-                {activeTab === 'program' && formation.program && (
+                {activeTab === 'program' && (formation.programme || formation.program) && (
                   <div>
                     <h2 className="text-2xl font-bold text-slate-900 mb-6">
                       Programme détaillé
                     </h2>
-                    <div className="space-y-4">
-                      {formation.program.map((week, index) => (
-                        <div key={index} className="p-4 border border-slate-200 rounded-lg hover:bg-slate-50 transition">
-                          <p className="text-slate-900 font-semibold">{week}</p>
+                    {formation.programme ? (
+                      <div className="prose max-w-none">
+                        <div className="whitespace-pre-line text-slate-700 leading-relaxed">
+                          {formation.programme.split('\n').map((line, index) => (
+                            <div key={index} className="p-4 border border-slate-200 rounded-lg hover:bg-slate-50 hover:shadow-sm transition bg-white mb-3">
+                              <div className="flex items-start gap-3">
+                                <div className="flex-shrink-0 w-8 h-8 rounded-full bg-[#0055A4] text-white flex items-center justify-center font-bold text-sm">
+                                  {index + 1}
+                                </div>
+                                <p className="text-slate-900 font-semibold pt-1">{line}</p>
+                              </div>
+                            </div>
+                          ))}
                         </div>
-                      ))}
-                    </div>
+                      </div>
+                    ) : formation.program ? (
+                      <div className="space-y-4">
+                        {formation.program.map((week, index) => (
+                          <div key={index} className="p-4 border border-slate-200 rounded-lg hover:bg-slate-50 hover:shadow-sm transition bg-white">
+                            <div className="flex items-start gap-3">
+                              <div className="flex-shrink-0 w-8 h-8 rounded-full bg-[#0055A4] text-white flex items-center justify-center font-bold text-sm">
+                                {index + 1}
+                              </div>
+                              <p className="text-slate-900 font-semibold pt-1">{week}</p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : null}
                   </div>
                 )}
 
@@ -377,22 +385,22 @@ function FormationDetailPage() {
               {/* Sidebar - Enrollment Card */}
               <div className="lg:col-span-1">
                 <div className="sticky top-24 space-y-4">
-                  {/* Price Card */}
-                  <div className="bg-white rounded-lg shadow-lg p-6 border border-slate-200">
-                    <div className="mb-6">
-                      <p className="text-slate-600 text-sm mb-2">Prix de la formation</p>
-                      <p className="text-4xl font-black text-[#0055A4]">
-                        {formation.price?.toLocaleString()} FC
-                      </p>
-                      <p className="text-slate-500 text-sm mt-1">Prix fixe, une seule fois</p>
-                    </div>
-
+                  {/* Enrollment Card */}
+                  <div className="bg-white rounded-lg shadow-lg border border-slate-200 overflow-hidden">
                     <EnrollmentForm 
-                      formation={formation}
-                      isAuthenticated={!!user}
+                      formationId={formation.id}
+                      title={formation.title}
+                      price={formation.price || 0}
+                      instructor={formation.instructor || 'Instructeur à confirmer'}
+                      duration={formation.duree || 'Non spécifié'}
+                      level={formation.level || 'Tous niveaux'}
+                      enrolledCount={formation.enrolled_count || formation.reviews_count || 0}
                     />
+                  </div>
 
-                    <div className="flex gap-3 mt-4">
+                  {/* Action Buttons */}
+                  <div className="bg-white rounded-lg shadow-lg p-4 border border-slate-200">
+                    <div className="flex gap-3">
                       <button
                         onClick={handleShare}
                         className="flex-1 flex items-center justify-center gap-2 px-4 py-3 border border-slate-200 rounded-lg text-slate-700 font-semibold hover:bg-slate-50 transition"
@@ -404,7 +412,7 @@ function FormationDetailPage() {
                         onClick={handleFavorite}
                         className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg font-semibold transition ${
                           isFavorite
-                            ? 'bg-red-100 text-red-600'
+                            ? 'bg-red-100 text-red-600 border border-red-200'
                             : 'border border-slate-200 text-slate-700 hover:bg-slate-50'
                         }`}
                       >
@@ -417,7 +425,10 @@ function FormationDetailPage() {
                   {/* Info Box */}
                   <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
                     <p className="text-sm text-slate-700">
-                      <strong>Besoin d'aide?</strong> Contactez notre équipe support à support@platforma.cd
+                      <strong>Besoin d'aide?</strong> Contactez notre équipe support à{' '}
+                      <a href="mailto:support@pnfc.cd" className="text-[#0055A4] font-semibold hover:underline">
+                        support@pnfc.cd
+                      </a>
                     </p>
                   </div>
                 </div>
@@ -427,10 +438,12 @@ function FormationDetailPage() {
         </div>
 
         {/* Related Formations */}
-        <RelatedFormations 
-          currentFormationId={formation.id}
-          category={formation.category}
-        />
+        <div className="container mx-auto px-4 py-8">
+          <RelatedFormations 
+            currentFormationId={formation.id}
+            category={formation.category}
+          />
+        </div>
       </main>
 
       <Footer />

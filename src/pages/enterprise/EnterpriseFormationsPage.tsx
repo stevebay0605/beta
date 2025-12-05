@@ -113,7 +113,7 @@ export default function EnterpriseFormationsPage() {
   };
 
   return (
-    <div className="flex min-h-screen bg-slate-50 font-sans">
+    <div className="flex min-h-screen bg-gradient-to-br from-bg-light via-white to-primary/5 font-sans">
       <Sidebar />
 
       <div className="flex-1 ml-64 flex flex-col">
@@ -125,12 +125,12 @@ export default function EnterpriseFormationsPage() {
             {/* EN-TÊTE */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div>
-                <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Mes Formations</h1>
-                <p className="text-slate-500 mt-1">Pilotez votre catalogue et suivez vos inscriptions.</p>
+                <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent tracking-tight">Mes Formations</h1>
+                <p className="text-gray-dark mt-1">Pilotez votre catalogue et suivez vos inscriptions.</p>
               </div>
               <button 
                 onClick={() => navigate('/enterprise/formations/create')}
-                className="flex items-center gap-2 bg-[#0055A4] hover:bg-[#004484] text-white px-5 py-2.5 rounded-lg shadow-lg shadow-blue-900/20 transition-all font-medium"
+                className="flex items-center gap-2 bg-primary hover:bg-accent text-white px-5 py-2.5 rounded-xl shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-accent/30 transition-all duration-200 font-bold hover:-translate-y-0.5"
               >
                 <Plus size={20} />
                 Nouvelle Formation
@@ -143,24 +143,24 @@ export default function EnterpriseFormationsPage() {
                  title="Formations Actives" 
                  value={stats.active_formations || 0} 
                  icon={<BookOpen className="text-white" size={24} />} 
-                 color="bg-blue-500" 
+                 color="bg-primary" 
                />
                <StatCard 
                  title="Total Catalogue" 
                  value={stats.total_formations || 0} 
                  icon={<Users className="text-white" size={24} />} 
-                 color="bg-indigo-500" 
+                 color="bg-blue-sky" 
                />
                <StatCard 
                  title="Demandes en attente" 
                  value={stats.total_demands || 0} 
                  icon={<Calendar className="text-white" size={24} />} 
-                 color="bg-orange-500" 
+                 color="bg-accent" 
                />
             </div>
 
             {/* BARRE DE RECHERCHE & FILTRES */}
-            <div className="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex flex-col sm:flex-row gap-4 justify-between items-center">
+            <div className="bg-white p-4 rounded-2xl shadow-md border border-gray-medium flex flex-col sm:flex-row gap-4 justify-between items-center">
                 <div className="relative w-full sm:w-96">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
                     <input 
@@ -168,7 +168,7 @@ export default function EnterpriseFormationsPage() {
                         placeholder="Rechercher une formation..." 
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition"
+                        className="w-full pl-10 pr-4 py-2 bg-gray-light border border-gray-medium rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none transition"
                     />
                 </div>
                 <div className="flex gap-2">
@@ -176,10 +176,10 @@ export default function EnterpriseFormationsPage() {
                         <button
                             key={status}
                             onClick={() => setFilterStatus(status)}
-                            className={`px-4 py-2 rounded-lg text-sm font-medium capitalize transition ${
+                            className={`px-4 py-2 rounded-lg text-sm font-medium capitalize transition-all duration-200 ${
                                 filterStatus === status 
-                                ? 'bg-slate-900 text-white' 
-                                : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
+                                ? 'bg-primary text-white shadow-md' 
+                                : 'bg-white text-gray-dark border border-gray-medium hover:bg-gray-light hover:border-primary/30'
                             }`}
                         >
                             {status === 'all' ? 'Toutes' : status === 'published' ? 'Publiées' : 'Brouillons'}
@@ -190,8 +190,13 @@ export default function EnterpriseFormationsPage() {
 
             {/* MESSAGE D'ERREUR */}
             {error && (
-              <div className="bg-red-50 text-red-600 p-4 rounded-lg border border-red-200">
-                  {error}
+              <div className="bg-red-50 border-l-4 border-red-500 text-red-700 p-4 rounded-r-lg shadow-md">
+                  <div className="flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span>{error}</span>
+                  </div>
               </div>
             )}
 
@@ -210,7 +215,7 @@ export default function EnterpriseFormationsPage() {
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                     {filteredFormations.map((formation) => (
-                        <div key={formation.id} className="group bg-white rounded-xl border border-slate-200 hover:shadow-xl hover:border-blue-200 transition-all duration-300 flex flex-col overflow-hidden">
+                        <div key={formation.id} className="group bg-white rounded-2xl border border-gray-medium hover:shadow-xl hover:border-primary/30 transition-all duration-300 flex flex-col overflow-hidden hover:-translate-y-1">
                             
                             {/* IMAGE DE COUVERTURE */}
                             <div className="relative h-48 bg-slate-100 overflow-hidden">
@@ -282,12 +287,12 @@ export default function EnterpriseFormationsPage() {
 
 // --- SOUS-COMPOSANTS ---
 const StatCard = ({ title, value, icon, color }: { title: string, value: number, icon: React.ReactNode, color: string }) => (
-    <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+    <div className="bg-white p-6 rounded-2xl border border-gray-medium shadow-md hover:shadow-xl transition-all duration-300 flex items-center justify-between hover:-translate-y-1">
         <div>
-            <p className="text-sm font-medium text-slate-500">{title}</p>
-            <p className="text-3xl font-bold text-slate-900 mt-1">{value}</p>
+            <p className="text-sm font-medium text-gray-dark">{title}</p>
+            <p className="text-3xl font-bold text-gray-xdark mt-1">{value}</p>
         </div>
-        <div className={`w-12 h-12 rounded-lg flex items-center justify-center shadow-lg shadow-blue-500/20 ${color}`}>
+        <div className={`w-14 h-14 rounded-xl flex items-center justify-center shadow-lg ${color}`}>
             {icon}
         </div>
     </div>

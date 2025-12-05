@@ -45,16 +45,16 @@ export default function ParticulierPage() {
   const hoursWidth = Math.min(((userStats?.hoursLearned || 0) / 1000) * 100, 100);
 
   return (
-    <div className="relative flex min-h-screen w-full flex-col">
+    <div className="relative flex min-h-screen w-full flex-col bg-gradient-to-br from-bg-light via-white to-primary/5">
       <Header />
-      <main className="flex-grow bg-slate-50">
+      <main className="flex-grow">
         <div className="container mx-auto p-4 md:p-6 lg:p-8">
           {/* Header */}
           <div className="mb-10">
-            <h1 className="text-4xl lg:text-5xl font-black leading-tight tracking-tighter text-slate-900 mb-4">
+            <h1 className="text-4xl lg:text-5xl font-black leading-tight tracking-tighter bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent mb-4">
               Tableau de bord Apprenant
             </h1>
-            <p className="text-slate-600 text-lg">
+            <p className="text-gray-dark text-lg">
               Bienvenue, {user?.name}! Continuez votre apprentissage.
             </p>
           </div>
@@ -62,51 +62,59 @@ export default function ParticulierPage() {
           {/* KPI Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
             {/* Formations en cours */}
-            <div className="bg-white rounded-lg border border-slate-200 shadow-sm p-6">
+            <div className="bg-white rounded-xl border border-gray-medium shadow-md hover:shadow-xl transition-all duration-300 p-6 hover:-translate-y-1">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-sm font-semibold text-slate-600">Formations</h3>
-                <BookOpen className="text-[#0055A4]" size={20} />
+                <h3 className="text-sm font-semibold text-gray-dark">Formations</h3>
+                <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
+                  <BookOpen className="text-primary" size={20} />
+                </div>
               </div>
-              <p className="text-3xl font-black text-slate-900">{userStats?.enrolledFormations || 0}</p>
-              <p className="text-xs text-slate-500 mt-2">En cours</p>
+              <p className="text-3xl font-black text-gray-xdark">{userStats?.enrolledFormations || 0}</p>
+              <p className="text-xs text-gray-dark mt-2">En cours</p>
             </div>
 
             {/* Formations complétées */}
-            <div className="bg-white rounded-lg border border-slate-200 shadow-sm p-6">
+            <div className="bg-white rounded-xl border border-gray-medium shadow-md hover:shadow-xl transition-all duration-300 p-6 hover:-translate-y-1">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-sm font-semibold text-slate-600">Complétées</h3>
-                <TrendingUp className="text-green-600" size={20} />
+                <h3 className="text-sm font-semibold text-gray-dark">Complétées</h3>
+                <div className="w-10 h-10 bg-success/10 rounded-lg flex items-center justify-center">
+                  <TrendingUp className="text-success" size={20} />
+                </div>
               </div>
-              <p className="text-3xl font-black text-slate-900">{userStats?.completedFormations || 0}</p>
-              <p className="text-xs text-slate-500 mt-2">Formations terminées</p>
+              <p className="text-3xl font-black text-gray-xdark">{userStats?.completedFormations || 0}</p>
+              <p className="text-xs text-gray-dark mt-2">Formations terminées</p>
             </div>
 
             {/* Certificats */}
-            <div className="bg-white rounded-lg border border-slate-200 shadow-sm p-6">
+            <div className="bg-white rounded-xl border border-gray-medium shadow-md hover:shadow-xl transition-all duration-300 p-6 hover:-translate-y-1">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-sm font-semibold text-slate-600">Certificats</h3>
-                <Award className="text-[#F58220]" size={20} />
+                <h3 className="text-sm font-semibold text-gray-dark">Certificats</h3>
+                <div className="w-10 h-10 bg-accent/10 rounded-lg flex items-center justify-center">
+                  <Award className="text-accent" size={20} />
+                </div>
               </div>
-              <p className="text-3xl font-black text-slate-900">{userStats?.certificates || 0}</p>
-              <p className="text-xs text-slate-500 mt-2">Obtenus</p>
+              <p className="text-3xl font-black text-gray-xdark">{userStats?.certificates || 0}</p>
+              <p className="text-xs text-gray-dark mt-2">Obtenus</p>
             </div>
 
             {/* Heures d'apprentissage */}
-            <div className="bg-white rounded-lg border border-slate-200 shadow-sm p-6">
+            <div className="bg-white rounded-xl border border-gray-medium shadow-md hover:shadow-xl transition-all duration-300 p-6 hover:-translate-y-1">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-sm font-semibold text-slate-600">Apprentissage</h3>
-                <Clock className="text-purple-600" size={20} />
+                <h3 className="text-sm font-semibold text-gray-dark">Apprentissage</h3>
+                <div className="w-10 h-10 bg-blue-sky/10 rounded-lg flex items-center justify-center">
+                  <Clock className="text-blue-sky" size={20} />
+                </div>
               </div>
-              <p className="text-3xl font-black text-slate-900">{userStats?.hoursLearned || 0}h</p>
-              <p className="text-xs text-slate-500 mt-2">Heures totales</p>
+              <p className="text-3xl font-black text-gray-xdark">{userStats?.hoursLearned || 0}h</p>
+              <p className="text-xs text-gray-dark mt-2">Heures totales</p>
             </div>
           </div>
 
           {/* Graphique d'inscriptions */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
             {/* Évolution des inscriptions */}
-            <div className="bg-white rounded-lg border border-slate-200 shadow-sm p-6">
-              <h2 className="text-lg font-bold text-slate-900 mb-6">Inscriptions par mois</h2>
+            <div className="bg-white rounded-2xl border border-gray-medium shadow-lg p-6">
+              <h2 className="text-lg font-bold text-gray-xdark mb-6">Inscriptions par mois</h2>
               <ResponsiveContainer width="100%" height={300}>
                 <AreaChart data={userStats?.enrollmentsByMonth || []}>
                   <defs>
@@ -137,8 +145,8 @@ export default function ParticulierPage() {
             </div>
 
             {/* Progression générale */}
-            <div className="bg-white rounded-lg border border-slate-200 shadow-sm p-6">
-              <h2 className="text-lg font-bold text-slate-900 mb-6">Progression générale</h2>
+            <div className="bg-white rounded-2xl border border-gray-medium shadow-lg p-6">
+              <h2 className="text-lg font-bold text-gray-xdark mb-6">Progression générale</h2>
               <div className="space-y-6">
                 {/* Barre de progression - Formations */}
                 <div>
@@ -190,26 +198,26 @@ export default function ParticulierPage() {
           {/* Profil & Actions */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Profil Card */}
-            <div className="bg-white rounded-lg border border-slate-200 shadow-sm p-6">
-              <h2 className="text-lg font-bold text-slate-900 mb-4">Mon Profil</h2>
+            <div className="bg-white rounded-2xl border border-gray-medium shadow-lg p-6">
+              <h2 className="text-lg font-bold text-gray-xdark mb-4">Mon Profil</h2>
               <div className="space-y-3">
                 <div>
-                  <p className="text-xs text-slate-500 font-semibold uppercase">Nom</p>
-                  <p className="text-sm text-slate-900 font-semibold">{user?.name}</p>
+                  <p className="text-xs text-gray-dark font-semibold uppercase">Nom</p>
+                  <p className="text-sm text-gray-xdark font-semibold">{user?.name}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-slate-500 font-semibold uppercase">Email</p>
-                  <p className="text-sm text-slate-900 font-semibold break-all">{user?.email}</p>
+                  <p className="text-xs text-gray-dark font-semibold uppercase">Email</p>
+                  <p className="text-sm text-gray-xdark font-semibold break-all">{user?.email}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-slate-500 font-semibold uppercase">Rôle</p>
-                  <p className="text-sm text-slate-900 font-semibold capitalize">
+                  <p className="text-xs text-gray-dark font-semibold uppercase">Rôle</p>
+                  <p className="text-sm text-gray-xdark font-semibold capitalize">
                     {roleName || user?.role?.name || 'N/A'}
                   </p>
                 </div>
                 <div>
-                  <p className="text-xs text-slate-500 font-semibold uppercase">Genre</p>
-                  <p className="text-sm text-slate-900 font-semibold capitalize">
+                  <p className="text-xs text-gray-dark font-semibold uppercase">Genre</p>
+                  <p className="text-sm text-gray-xdark font-semibold capitalize">
                     {user?.genre === 'M' ? 'Masculin' : user?.genre === 'F' ? 'Féminin' : user?.genre || 'N/A'}
                   </p>
                 </div>
@@ -217,40 +225,40 @@ export default function ParticulierPage() {
             </div>
 
             {/* Actions rapides */}
-            <div className="lg:col-span-2 bg-white rounded-lg border border-slate-200 shadow-sm p-6">
-              <h2 className="text-lg font-bold text-slate-900 mb-4">Actions rapides</h2>
+            <div className="lg:col-span-2 bg-white rounded-2xl border border-gray-medium shadow-lg p-6">
+              <h2 className="text-lg font-bold text-gray-xdark mb-4">Actions rapides</h2>
               <div className="grid grid-cols-2 gap-4">
                 <a
                   href="/catalogue"
-                  className="flex items-center justify-center gap-2 p-4 bg-[#0055A4]/10 hover:bg-[#0055A4]/20 text-[#0055A4] rounded-lg transition font-semibold text-sm"
+                  className="flex items-center justify-center gap-2 p-4 bg-primary/10 hover:bg-primary/20 text-primary rounded-xl transition-all duration-200 font-semibold text-sm hover:shadow-md hover:-translate-y-0.5 border border-primary/20"
                 >
                   <BookOpen size={18} />
                   Formations
                 </a>
                 <a
                   href="/profile"
-                  className="flex items-center justify-center gap-2 p-4 bg-purple-100 hover:bg-purple-200 text-purple-700 rounded-lg transition font-semibold text-sm"
+                  className="flex items-center justify-center gap-2 p-4 bg-accent/10 hover:bg-accent/20 text-accent rounded-xl transition-all duration-200 font-semibold text-sm hover:shadow-md hover:-translate-y-0.5 border border-accent/20"
                 >
                   <Award size={18} />
                   Mon profil
                 </a>
                 <a
                   href="/"
-                  className="flex items-center justify-center gap-2 p-4 bg-[#F58220]/10 hover:bg-[#F58220]/20 text-[#F58220] rounded-lg transition font-semibold text-sm"
+                  className="flex items-center justify-center gap-2 p-4 bg-blue-sky/10 hover:bg-blue-sky/20 text-blue-sky rounded-xl transition-all duration-200 font-semibold text-sm hover:shadow-md hover:-translate-y-0.5 border border-blue-sky/20"
                 >
                   <BookOpen size={18} />
                   Accueil
                 </a>
                 <a
                   href="/catalogue"
-                  className="flex items-center justify-center gap-2 p-4 bg-green-100 hover:bg-green-200 text-green-700 rounded-lg transition font-semibold text-sm"
+                  className="flex items-center justify-center gap-2 p-4 bg-success/10 hover:bg-success/20 text-success rounded-xl transition-all duration-200 font-semibold text-sm hover:shadow-md hover:-translate-y-0.5 border border-success/20"
                 >
                   <TrendingUp size={18} />
                   Parcours
                 </a>
                 <button
                   onClick={handleLogout}
-                  className="col-span-2 flex items-center justify-center gap-2 p-4 bg-red-100 hover:bg-red-200 text-red-700 rounded-lg transition font-semibold text-sm"
+                  className="col-span-2 flex items-center justify-center gap-2 p-4 bg-error/10 hover:bg-error/20 text-error rounded-xl transition-all duration-200 font-semibold text-sm hover:shadow-md hover:-translate-y-0.5 border border-error/20"
                 >
                   <LogOut size={18} />
                   Déconnexion
