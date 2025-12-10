@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Header } from '../components/Header';
 import { Footer } from '../components/Footer';
+import { SEO } from '../components/SEO';
 import { 
   Star, 
   MapPin, 
@@ -146,8 +147,20 @@ function FormationDetailPage() {
   return (
     <div className="relative flex min-h-screen w-full flex-col bg-slate-50">
       <Header />
-      
-      <main className="flex-grow">
+
+      {/* SEO pour la formation */}
+      {formation && (
+        <SEO
+          title={formation.title}
+          description={formation.detailed_description || formation.description || "Découvrez cette formation sur PNFC, la plateforme nationale de formation congolaise."}
+          keywords={`${formation.title}, formation, Congo-Brazzaville, PNFC${formation.category ? ', ' + formation.category : ''}`}
+          image={formation.image_url || formation.image_couverture || '/og-default.jpg'}
+          url={`/formations/${formation.id}`}
+          type="article"
+        />
+      )}
+
+        <main className="flex-grow">
         {/* Back Button */}
         <div className="bg-white border-b border-slate-200">
           <div className="container mx-auto px-4 py-4">
